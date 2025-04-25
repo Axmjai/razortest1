@@ -1,0 +1,83 @@
+﻿@model MyApp.Models.Item
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Item</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            @Html.HiddenFor(model => model.CreatedBy)
+            @Html.HiddenFor(model => model.CreatedDate)
+            @Html.HiddenFor(model => model.IsDeleted)
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Pirce" class="control-label"></label>
+                <input asp-for="Pirce" class="form-control" />
+                <span asp-validation-for="Pirce" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Updatedby" class="control-label"></label>
+                <input asp-for="Updatedby" class="form-control" />
+                <span asp-validation-for="Updatedby" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UpdatedDate" class="control-label"></label>
+                <input asp-for="UpdatedDate" class="form-control" />
+                <span asp-validation-for="UpdatedDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ClientId" class="control-label"></label>
+                <select asp-for="ClientId" class="form-control" asp-items="ViewBag.ClientId"></select>
+            </div>
+
+            <div class="form-group">
+             
+                <p>Serial</p>
+                @{
+                    int i = 0;
+                    foreach (var item in Model.SerialNumbers)
+                    {
+                        @Html.EditorFor(m => item, "SerialNumber", "SerialNumbers[" + i++ + "]")
+                    }
+                }
+                
+                @*   @foreach (var ups in Model.SerialNumbers)
+                {
+                    <input type="text" name="Serial" class="form-control" value="@ups.Name" />
+                } *@
+               
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
