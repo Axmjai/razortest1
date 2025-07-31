@@ -13,13 +13,13 @@ public partial class ItemClient
 
     public int ClientId { get; set; }
 
-    public string? Remark { get; set; }
+    public string Remark { get; set; }
 
     [ForeignKey("ClientId")]
     [InverseProperty("ItemClients")]
-    public virtual Client Client { get; set; } = null!;
+    public virtual Client Client { get; set; }
 
     [ForeignKey("ItemId")]
     [InverseProperty("ItemClient")]
-    public virtual Item Item { get; set; } = null!;
+    public virtual Item Item { get; set; }
 }

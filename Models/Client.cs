@@ -11,7 +11,8 @@ public partial class Client
     [Key]
     public int Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    [Required]
+    public string Name { get; set; }
 
     [InverseProperty("Client")]
     public virtual ICollection<ItemClient> ItemClients { get; set; } = new List<ItemClient>();

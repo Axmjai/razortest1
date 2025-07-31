@@ -11,29 +11,29 @@ namespace MyApp.Controllers
 {
     public class ItemsController : Controller
     {
-        private readonly MyAppContext _context;
+        private readonly MyappDatabaseContext _context;
 
-        public ItemsController(MyAppContext context)
+        public ItemsController(MyappDatabaseContext context)
         {
             _context = context;
         }
 
         // GET: Items
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            List<Item> items = await new Item().GetAll(_context);
-            return View(items);
+            List<Item> items = new Item().GetAll(_context); // ดึงข้อมูลสินค้าทั้งหมดจากฐานข้อมูล 
+            return View(items); // ส่งคืน ไปหน้า Index
         }
 
-        // GET: Items/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: Items/Detail
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var item = await new Item().GetById(_context, id.Value);
+            var item = new Item().GetById(_context, id.Value);
             if (item == null)
             {
                 return NotFound();
@@ -45,10 +45,11 @@ namespace MyApp.Controllers
         // GET: Items/Create
         public IActionResult Create()
         {
-            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name"); //เตรียม Dropdown 
             ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name");
-       
-            return View();
+            Item im = new Item(); 
+            im.SerialNumbers.Add(new SerialNumber());
+            return View(im);
         }
 
         // POST: Items/Create
@@ -56,37 +57,32 @@ namespace MyApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Item item)
+        public IActionResult Create(Item item)
         {
             if (ModelState.IsValid)
             {
-                await item.Create(_context);
-                await item.Createserial(_context, item.Serial);
-
-                await _context.SaveChangesAsync();
+                item.Create(_context);
+                _context.SaveChanges(); 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name", item.CategoryId);
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", item.ClientId);
-        
-            return View(item);
+            return View();
         }
 
         // GET: Items/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            var item = await new Item().GetById(_context, id.Value);
-            //var item = await _context.Items.FindAsync(id);
+            Item item = new Item().GetById(_context, id.Value);
+           
             if (item == null)
             {
                 return NotFound();
             }
-            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name", item.CategoryId);
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", item.ClientId);
+            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name"); //เตรียม Dropdown
+            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name");
             return View(item);
         }
 
@@ -95,20 +91,19 @@ namespace MyApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Item item)
+        public IActionResult Edit(int id, Item item)
         {
             if (id != item.Id)
             {
                 return NotFound();
             }
 
-            if (true)
+            if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(item);
-                    _context.SaveChanges();
 
+                    item.Update(_context);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -123,24 +118,24 @@ namespace MyApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name", item.CategoryId);
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", item.ClientId);
+            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name");
             return View(item);
         }
 
         // GET: Items/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var item = await _context.Items.Include(i => i.Category)
-                                           .Include(s => s.SerialNumbers)
-                                           .Include(ic => ic.ItemClient)
-                                           .Include(c => c.Client)                             
-                                           .FirstOrDefaultAsync(m => m.Id == id);
+            Item item = _context.Items.Include(i => i.Category)
+                                     .Include(s => s.SerialNumbers)
+                                     .Include(ic => ic.ItemClient)
+                                     .Include(c => c.Client)                             
+                                     .FirstOrDefault(m => m.Id == id);
             if (item == null)
             {
                 return NotFound();
@@ -149,18 +144,16 @@ namespace MyApp.Controllers
             return View(item);
         }
 
-        // POST: Items/Delete/5
+        // POST: Items/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            var item = await new Item().GetById(_context, id);
+            Item item = new Item().GetById(_context, id);
             if (item != null)
             {
-                await item.Delete(_context);
-            }
-
-            
+                item.Delete(_context);
+            } 
             return RedirectToAction(nameof(Index));
         }
 
